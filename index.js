@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-const storage = multer.diskStorage({
+const temporaryStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/files");
   },
@@ -18,8 +18,6 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-
-const upload = multer({ storage: storage });
 
 const permanentStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -30,16 +28,16 @@ const permanentStorage = multer.diskStorage({
   },
 });
 
+const temporaryUpload = multer({ storage: temporaryStorage });
 const permanentUpload = multer({ storage: permanentStorage });
 
-app.use("/uploads", express.static("public/files"));
-app.use("/images", express.static("public/image"));
+app.use("/upload", express.static("public/files"));
 
 app.get("/", (req, res) => {
   res.status(200).json("Up and Running");
 });
 
-app.post("/upload", upload.single("file"), (req, res) => {
+app.post("/upload", temporaryUpload.single("file"), (req, res) => {
   if (req.file) {
     permanentUpload.single("file")(req, res, (err) => {
       if (err) {
