@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-const temporaryStorage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/files");
   },
@@ -19,17 +19,7 @@ const temporaryStorage = multer.diskStorage({
   },
 });
 
-const permanentStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/file");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-
-const temporaryUpload = multer({ storage: temporaryStorage });
-const permanentUpload = multer({ storage: permanentStorage });
+const upload = multer({ storage: storage });
 
 app.use("/upload", express.static("public/files"));
 
@@ -37,19 +27,11 @@ app.get("/", (req, res) => {
   res.status(200).json("Up and Running");
 });
 
-app.post("/upload", temporaryUpload.single("file"), (req, res) => {
+app.post("/upload", upload.single("file"), (req, res) => {
   if (req.file) {
-    permanentUpload.single("file")(req, res, (err) => {
-      if (err) {
-        res
-          .status(500)
-          .json({ message: "Failed to move file to permanent storage" });
-      } else {
-        res.status(200).json({
-          message: "File uploaded and moved to permanent storage successfully",
-          originalname: req.file.originalname,
-        });
-      }
+    res.status(200).json({
+      message: "File uploaded successfully",
+      originalname: req.file.originalname,
     });
   } else {
     res.status(400).json({ message: "No file uploaded" });
