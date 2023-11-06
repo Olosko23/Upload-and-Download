@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
 });
 
 app.get("/", (req, res) => {
-  res.status(200).json("Up and Running");
+  res.status(200).json("Up and Running..");
 });
 
 app.post("/upload", upload.single("file"), (req, res) => {
